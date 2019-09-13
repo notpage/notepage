@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Notepage | hub</title>
+    <!-- css & fontawesome -->
+    <link rel="stylesheet" type="text/css" href="../css/app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+</head>
+
+<body>
+    <script> 
+        const prompt = require('electron-prompt');
+        const {ipcRenderer} = require('electron');
+        const fs = require('fs');
+
+        const package = require('../../package.json');
+        const projName = package.name;
+        const OSname = require("os").userInfo().username;
+        const homedir = require('os').homedir();
+        const platform = process.platform;
+
+        const dir = require('../../utils/path');
+
+        let path = dir.getHomepath(platform, projName, OSname, homedir);
+        const settings = dir.getSettings(fs, path);
+
+        /**let update_button = document.getElementById('isUpdate');
+        ipcRenderer.on('Update-found', (event, arg) =>{
+            upddate_button.innerHTML = '<button id="trigger-update"><i class="fas fa-arrow-alt-circle-down"></i></button>';
+        })*/
+    </script>
+    <div class="dragable">
+        <div id="version" class="text-container">Notepage vX.X.X</div>
+    </div> <!-- Dragable Area -->
+
+    <!-- Buttons (close, minimize, maximize) -->
+    <button class="btn" id="minimize"><i class="fas fa-window-minimize"></i></button>
+    <button class="btn" id="maximize"><i class="far fa-window-restore"></i></button>
+    <button class="btn" id="closeDown"><i class="fas fa-times"></i></button>
+    <!-- Buttons [END]-->
+
+    <!-- UI Area -->
+    <div class="topui">
+    </div>
+    <div class="main">
+
+        <!-- Back Redirection -->
+        <button style="position:absolute;bottom:20px;left:20px;width:20%;border:none;background-color:#00b894;color:white;padding: 5px 5px 5px 5px;border-radius:2px;" onclick="window.location.href = 'app.html';">Back</button>
+        <button style="position:absolute;bottom:20px;left:230px;width:20%;border:none;background-color:#00b894;color:white;padding: 5px 5px 5px 5px;border-radius:2px;" id="btn_Update">Update</button>
+       
+        <!-- Settings Form -->
+        <form style="margin: 10px 10px 10px 10px;">
+            <h1 style="color:white;">Settings</h1>
+
+            <!-- Path Input -->
+            <label for="dir" style="color:white;font-weight: bold;">Storage Path:</label>
+            <input id="dir" type="text" value="" placeholder="New Storage Location" style="width:98%;font-size:20px;background:none;border:none;border-radius:2px;background-color:#00b894;color:white;padding: 5px 5px 5px 5px;margin: 5px 5px 5px 5px;">
+            
+            <br><br>
+
+            <!-- Patch toggler -->
+            <label for="patcher" style="color:white;font-weight: bold;"> Patch Toggler</label>
+            <div id="patcher" style="margin: 10px 5px 10px 5px;border-radius:2px;background-color:#00b894;color:white;padding: 5px 10px 5px 10px;">
+                <span style="font-size: 20px;">Auto Patcher:
+                    <label class="switch">
+                        <input type="checkbox" id="check">
+                        <span class="slider round" slider round"></span>
+                    </label>
+                </span>
+            </div>
+            <!-- End Patch toggler -->
+
+        </form>
+        <!-- End Form -->
+
+    </div>
+    
+    <script>
+        //grab version
+        const {version} = require('../../package.json');
+
+        // Value grabber
+        let check = document.getElementById('check');
+        let pDir = document.getElementById('dir');
+        let btn_Update = document.getElementById('btn_update');
+
+        btn_Update.addEventListener('click', () => {
+            ipcRenderer.send('opened',`${data['name']}`);
+        })
+
+        // Setting UI Values
+        pDir.value = settings.files;
+        check.checked = settings.enablePatch;
+
+        // patcher
+        let patcher = true;
+        check.checked = settings.enablePatch;
+
+        // Setitngs Verification 
+        setInterval(() => {
+            // Change Storage Location
+            settings.files = pDir.value;
+
+            // Autopatch Toggler
+            if(check.checked === true){ 
+                
+                // Enable autopatch
+                settings.enablePatch = "true";
+            }else if(check.checked === false){ 
+                
+                // Disable autopatch
+                settings.enablePatch = "false";
+            }
+            // Patcher Check
+            fs.writeFile(`${path}/data/settings.json`, JSON.stringify(settings), (err) => {
+                if (err) console.log(err)
+            });
+
+        }, 100)
+    </script> <!-- Javascript -->
+</body>
+
+</html>
